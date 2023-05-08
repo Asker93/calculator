@@ -31,10 +31,10 @@ class MyCalc:
         self.btn_AE = tk.Button(self.frame_operations_1, text='\u03C0', font=('Arial', 14, 'bold'), width=4, height=2, command=self.pi)
 
         self.frame_operations_2 = tk.Frame(self.window)
-        self.btn_div = tk.Button(self.frame_operations_2, text='\u00F7', font=('Arial', 14, 'bold'), width=4, height=2, command=self.oper_div)
-        self.btn_mul = tk.Button(self.frame_operations_2, text='*', font=('Arial', 14, 'bold'), width=4, height=2, command=self.oper_mul)
-        self.btn_sub = tk.Button(self.frame_operations_2, text='-', font=('Arial', 14, 'bold'), width=4, height=2, command=self.oper_sub)
-        self.btn_add = tk.Button(self.frame_operations_2, text='+', font=('Arial', 14, 'bold'), width=4, height=2, command=self.oper_add)
+        self.btn_div = tk.Button(self.frame_operations_2, text='\u00F7', font=('Arial', 14, 'bold'), width=4, height=2, command=lambda: self.operations_add_sub_mul_div('/'))
+        self.btn_mul = tk.Button(self.frame_operations_2, text='*', font=('Arial', 14, 'bold'), width=4, height=2, command=lambda: self.operations_add_sub_mul_div('*'))
+        self.btn_sub = tk.Button(self.frame_operations_2, text='-', font=('Arial', 14, 'bold'), width=4, height=2, command=lambda: self.operations_add_sub_mul_div('-'))
+        self.btn_add = tk.Button(self.frame_operations_2, text='+', font=('Arial', 14, 'bold'), width=4, height=2, command=lambda: self.operations_add_sub_mul_div('+'))
         self.btn_equals = tk.Button(self.frame_operations_2, text='=', font=('Arial', 14, 'bold'), width=4, height=2, command=self.oper_eq)
 
     def init_buttons_numbers(self):
@@ -97,261 +97,136 @@ class MyCalc:
         self.dial_numbers.set(self.dial_numbers.get() + number)
 
     def oper_eq(self):
-        if self.oper == '+':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num + second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res + second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '-':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num - second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res - second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num * second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res * second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num / second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res / second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
+        if self.oper is None:
+            return None
 
+        second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
+
+        if self.oper == '+':
+            if self.temp_num:
+                self.temp_num += second_num
+                result = self.temp_num
+            else:
+                self.temp_res += second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        elif self.oper == '-':
+            if self.temp_num:
+                self.temp_num -= second_num
+                result = self.temp_num
+            else:
+                self.temp_res -= second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        elif self.oper == '*':
+            if self.temp_num:
+                self.temp_num *= second_num
+                result = self.temp_num
+            else:
+                self.temp_res *= second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        else:
+            if self.temp_num:
+                try:
+                    self.temp_num /= second_num
+                except ZeroDivisionError:
+                    result = 'Делить на 0 нельзя'
+                else:
+                    result = self.temp_num
+            else:
+                try:
+                    self.temp_res /= second_num
+                except ZeroDivisionError:
+                    result = 'Делить на 0 нельзя'
+                else:
+                    self.temp_num = self.temp_res
+                    result = self.temp_res
+
+        self.dial_numbers.set(str(result))
         self.oper = '='
 
-    def oper_add(self):
+    def operations_add_sub_mul_div(self, operation):
         if self.oper == '=':
             self.dial_numbers.set('')
             self.temp_res = self.temp_num
             self.temp_num = None
-            self.oper = '+'
+            self.oper = operation
             return None
 
-        if self.oper == '-':
+        try:
             second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
             self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num - second_num
-            else:
-                self.temp_res = self.temp_res - second_num
-            self.temp_num = None
-            self.oper = '+'
-            return None
-
-        if self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num * second_num
-            else:
-                self.temp_res = self.temp_res * second_num
-            self.temp_num = None
-            self.oper = '+'
-            return None
-
-        if self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num / second_num
-            else:
-                self.temp_res = self.temp_res / second_num
-            self.temp_num = None
-            self.oper = '+'
-            return None
-
-        self.oper = '+'
-
-        if self.temp_num is None and self.temp_res is None:
-            self.temp_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-        else:
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num + second_num
-            else:
-                self.temp_res = self.temp_res + second_num
-            self.dial_numbers.set('')
-
-    def oper_sub(self):
-        if self.oper == '=':
-            self.dial_numbers.set('')
-            self.temp_res = self.temp_num
-            self.temp_num = None
-            self.oper = '-'
+        except ValueError:
             return None
 
         if self.oper == '+':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
                 self.temp_res = self.temp_num + second_num
             else:
                 self.temp_res = self.temp_res + second_num
             self.temp_num = None
-            self.oper = '-'
-            return None
-
-        if self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num * second_num
-            else:
-                self.temp_res = self.temp_res * second_num
-            self.temp_num = None
-            self.oper = '-'
-            return None
-
-        if self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num / second_num
-            else:
-                self.temp_res = self.temp_res / second_num
-            self.temp_num = None
-            self.oper = '-'
-            return None
-
-        self.oper = '-'
-
-        if self.temp_num is None and self.temp_res is None:
-            self.temp_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-        else:
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num - second_num
-            else:
-                self.temp_res = self.temp_res - second_num
-            self.dial_numbers.set('')
-
-    def oper_mul(self):
-        if self.oper == '=':
-            self.dial_numbers.set('')
-            self.temp_res = self.temp_num
-            self.temp_num = None
-            self.oper = '*'
-            return None
-
-        if self.oper == '+':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num + second_num
-            else:
-                self.temp_res = self.temp_res + second_num
-            self.temp_num = None
-            self.oper = '*'
+            self.oper = operation
             return None
 
         if self.oper == '-':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
                 self.temp_res = self.temp_num - second_num
             else:
                 self.temp_res = self.temp_res - second_num
             self.temp_num = None
-            self.oper = '*'
-            return None
-
-        if self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num / second_num
-            else:
-                self.temp_res = self.temp_res / second_num
-            self.temp_num = None
-            self.oper = '*'
-            return None
-
-        self.oper = '*'
-
-        if self.temp_num is None and self.temp_res is None:
-            self.temp_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-        else:
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num * second_num
-            else:
-                self.temp_res = self.temp_res * second_num
-            self.dial_numbers.set('')
-
-    def oper_div(self):
-        if self.oper == '=':
-            self.dial_numbers.set('')
-            self.temp_res = self.temp_num
-            self.temp_num = None
-            self.oper = '/'
-            return None
-
-        if self.oper == '+':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num + second_num
-            else:
-                self.temp_res = self.temp_res + second_num
-            self.temp_num = None
-            self.oper = '/'
-            return None
-
-        if self.oper == '-':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
-            if self.temp_num:
-                self.temp_res = self.temp_num - second_num
-            else:
-                self.temp_res = self.temp_res - second_num
-            self.temp_num = None
-            self.oper = '/'
+            self.oper = operation
             return None
 
         if self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
                 self.temp_res = self.temp_num * second_num
             else:
                 self.temp_res = self.temp_res * second_num
             self.temp_num = None
-            self.oper = '/'
+            self.oper = operation
             return None
 
-        self.oper = '/'
+        if self.oper == '/':
+            if self.temp_num:
+                try:
+                    self.temp_res = self.temp_num / second_num
+                except ZeroDivisionError:
+                    self.dial_numbers.set('Делить на 0 нельзя')
+            else:
+                try:
+                    self.temp_res = self.temp_res / second_num
+                except ZeroDivisionError:
+                    self.dial_numbers.set('Делить на 0 нельзя')
+            self.temp_num = None
+            self.oper = operation
+            return None
+
+        self.oper = operation
 
         if self.temp_num is None and self.temp_res is None:
-            self.temp_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(
-                self.dial_numbers.get())
-            self.dial_numbers.set('')
+            self.temp_num = second_num
         else:
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num / second_num
-            else:
-                self.temp_res = self.temp_res / second_num
-            self.dial_numbers.set('')
+            if operation == '+':
+                if self.temp_num:
+                    self.temp_num = self.temp_num + second_num
+                else:
+                    self.temp_res = self.temp_res + second_num
+            elif operation == '-':
+                if self.temp_num:
+                    self.temp_num = self.temp_num - second_num
+                else:
+                    self.temp_res = self.temp_res - second_num
+            elif operation == '*':
+                if self.temp_num:
+                    self.temp_num = self.temp_num * second_num
+                else:
+                    self.temp_res = self.temp_res * second_num
+            elif operation == '/':
+                if self.temp_num:
+                    self.temp_num = self.temp_num * second_num
+                else:
+                    self.temp_res = self.temp_res * second_num
 
 
 if __name__ == '__main__':
