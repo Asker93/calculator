@@ -7,6 +7,9 @@ class MyCalc:
         self.window.title('Калькулятор')
         self.window.resizable(False, False)
 
+        self.window.bind('<Return>', self.handle_return_press)
+        self.window.bind('<Key>', self.hanlde_key_press)
+
         self.temp_num = None
         self.temp_res = None
         self.oper = None
@@ -79,6 +82,17 @@ class MyCalc:
         self.btn_9.grid(row=2, column=2)
         self.btn_0.grid(row=3, column=0, columnspan=2, sticky='ew')
         self.btn_dot.grid(row=3, column=2)
+
+    def handle_return_press(self, event):
+        self.oper_eq()
+
+    def hanlde_key_press(self, event: tk.Event):
+        if event.char.isdigit():
+            self.display(event.char)
+        elif event.char in ['+', '-', '*', '/']:
+            self.operations_add_sub_mul_div(event.char)
+        elif event.keysym == 'BackSpace':
+            self.dial_numbers.set(self.dial_numbers.get()[:-1])
 
     def clear(self):
         self.temp_num = None
