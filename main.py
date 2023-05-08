@@ -97,43 +97,53 @@ class MyCalc:
         self.dial_numbers.set(self.dial_numbers.get() + number)
 
     def oper_eq(self):
-        if self.oper == '+':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num + second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res + second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '-':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num - second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res - second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num * second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res * second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
-        elif self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            if self.temp_num:
-                self.temp_num = self.temp_num / second_num
-                self.dial_numbers.set(str(self.temp_num))
-            else:
-                self.temp_res = self.temp_res / second_num
-                self.dial_numbers.set(str(self.temp_res))
-                self.temp_num = self.temp_res
+        if self.oper is None:
+            return None
 
+        second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
+
+        if self.oper == '+':
+            if self.temp_num:
+                self.temp_num += second_num
+                result = self.temp_num
+            else:
+                self.temp_res += second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        elif self.oper == '-':
+            if self.temp_num:
+                self.temp_num -= second_num
+                result = self.temp_num
+            else:
+                self.temp_res -= second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        elif self.oper == '*':
+            if self.temp_num:
+                self.temp_num *= second_num
+                result = self.temp_num
+            else:
+                self.temp_res *= second_num
+                self.temp_num = self.temp_res
+                result = self.temp_res
+        else:
+            if self.temp_num:
+                try:
+                    self.temp_num /= second_num
+                except ZeroDivisionError:
+                    result = 'Делить на 0 нельзя'
+                else:
+                    result = self.temp_num
+            else:
+                try:
+                    self.temp_res /= second_num
+                except ZeroDivisionError:
+                    result = 'Делить на 0 нельзя'
+                else:
+                    self.temp_num = self.temp_res
+                    result = self.temp_res
+
+        self.dial_numbers.set(str(result))
         self.oper = '='
 
     def operations_add_sub_mul_div(self, operation):
@@ -144,9 +154,13 @@ class MyCalc:
             self.oper = operation
             return None
 
-        if self.oper == '+':
+        try:
             second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
             self.dial_numbers.set('')
+        except ValueError:
+            return None
+
+        if self.oper == '+':
             if self.temp_num:
                 self.temp_res = self.temp_num + second_num
             else:
@@ -156,8 +170,6 @@ class MyCalc:
             return None
 
         if self.oper == '-':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
                 self.temp_res = self.temp_num - second_num
             else:
@@ -167,8 +179,6 @@ class MyCalc:
             return None
 
         if self.oper == '*':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
                 self.temp_res = self.temp_num * second_num
             else:
@@ -178,12 +188,16 @@ class MyCalc:
             return None
 
         if self.oper == '/':
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if self.temp_num:
-                self.temp_res = self.temp_num / second_num
+                try:
+                    self.temp_res = self.temp_num / second_num
+                except ZeroDivisionError:
+                    self.dial_numbers.set('Делить на 0 нельзя')
             else:
-                self.temp_res = self.temp_res / second_num
+                try:
+                    self.temp_res = self.temp_res / second_num
+                except ZeroDivisionError:
+                    self.dial_numbers.set('Делить на 0 нельзя')
             self.temp_num = None
             self.oper = operation
             return None
@@ -191,11 +205,8 @@ class MyCalc:
         self.oper = operation
 
         if self.temp_num is None and self.temp_res is None:
-            self.temp_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
+            self.temp_num = second_num
         else:
-            second_num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
-            self.dial_numbers.set('')
             if operation == '+':
                 if self.temp_num:
                     self.temp_num = self.temp_num + second_num
