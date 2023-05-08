@@ -27,7 +27,7 @@ class MyCalc:
     def init_buttons_operations(self):
         self.frame_operations_1 = tk.Frame(self.window)
         self.btn_AC = tk.Button(self.frame_operations_1, text='C', font=('Arial', 14, 'bold'), width=4, height=2, command=self.clear)
-        self.btn_AB = tk.Button(self.frame_operations_1, text='n\u00B2', font=('Arial', 14, 'bold'), width=4, height=2)
+        self.btn_AB = tk.Button(self.frame_operations_1, text='n\u00B2', font=('Arial', 14, 'bold'), width=4, height=2, command=self.square)
         self.btn_AE = tk.Button(self.frame_operations_1, text='\u03C0', font=('Arial', 14, 'bold'), width=4, height=2)
 
         self.frame_operations_2 = tk.Frame(self.window)
@@ -85,6 +85,10 @@ class MyCalc:
         self.temp_res = None
         self.oper = None
         self.dial_numbers.set('')
+
+    def square(self):
+        num = float(self.dial_numbers.get()) if '.' in self.dial_numbers.get() else int(self.dial_numbers.get())
+        self.dial_numbers.set(str(num ** 2))
 
     def display(self, number):
         self.dial_numbers.set(self.dial_numbers.get() + number)
